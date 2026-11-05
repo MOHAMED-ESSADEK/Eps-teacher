@@ -1,0 +1,19 @@
+EPS TEACHER — version hors ligne
+
+CONTENU
+- index.html : application
+- manifest.webmanifest + sw.js : installation PWA et cache hors ligne
+- students.json : liste des élèves (noms complets uniquement)
+
+INSTALLATION SUR ANDROID
+1. Décompressez le ZIP.
+2. Publiez le contenu du dossier sur un hébergement HTTPS (par exemple GitHub Pages).
+3. Ouvrez l'adresse HTTPS dans Chrome sur le téléphone.
+4. Menu ⋮ > Installer l'application / Ajouter à l'écran d'accueil.
+5. Ouvrez l'application une première fois avec Internet ; ensuite elle fonctionne hors ligne.
+
+IMPORTANT
+- L'installation PWA nécessite une adresse HTTPS (ou localhost). Ouvrir index.html directement depuis le gestionnaire de fichiers ne permet pas d'installer correctement le mode hors ligne.
+- Les données pédagogiques sont stockées localement dans le navigateur de ce téléphone. Exportez régulièrement la sauvegarde JSON depuis l'onglet Sauvegarde.
+- Pour transférer les données vers un autre téléphone, exportez puis importez le fichier JSON.
+- Seuls les noms complets sont intégrés ; aucune autre donnée personnelle de l'Excel n'est reprise.

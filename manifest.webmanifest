@@ -1,0 +1,9 @@
+{
+  "name": "EPS Teacher",
+  "short_name": "EPS Teacher",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f8",
+  "theme_color": "#155e75",
+  "lang": "fr"
+}

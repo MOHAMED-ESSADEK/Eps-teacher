@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#155e75"><meta name="description" content="Cahier journal et suivi EPS hors ligne">
+<link rel="manifest" href="manifest.webmanifest"><title>EPS Teacher</title>
+<style>
+:root{--ink:#183344;--muted:#617987;--brand:#155e75;--pale:#e8f3f5;--line:#d7e1e5;--bg:#f4f7f8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Arabic",sans-serif}
+header{background:var(--brand);color:white;padding:17px 16px 14px;position:sticky;top:0;z-index:4;box-shadow:0 2px 8px #1233}
+header h1{font-size:21px;margin:0 0 5px}header small{opacity:.85}
+main{max-width:1100px;margin:auto;padding:14px}
+nav{display:flex;gap:8px;overflow:auto;padding:2px 0 12px}
+nav button,.btn{border:0;border-radius:10px;padding:11px 14px;background:#dce9ec;color:var(--ink);font-weight:700;white-space:nowrap}
+nav button.active,.btn.primary{background:var(--brand);color:white}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:13px;box-shadow:0 2px 8px #15334408}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:135px}
+label{font-size:12px;color:var(--muted);font-weight:700}
+input,select,textarea{font:inherit;border:1px solid #cbd8dd;border-radius:9px;padding:10px;background:white;color:var(--ink);width:100%;min-width:0}
+textarea{min-height:78px;resize:vertical}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:var(--pale);border-radius:11px;padding:12px}.stat b{font-size:23px;display:block;color:var(--brand)}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:9px;max-height:68vh}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:12px;background:white}
+th,td{border:1px solid #b8c6cc;padding:5px;text-align:center;white-space:nowrap}
+th{background:#e6efdf;position:sticky;top:0;z-index:1}
+td.name{text-align:right;min-width:190px;font-weight:600;position:sticky;right:0;background:#fff;z-index:2}
+th.name{position:sticky;right:0;z-index:3}
+td input{width:42px;padding:6px 2px;text-align:center;border:0;background:#f8fafb;border-radius:4px}td select.session-status{width:48px;min-width:48px;padding:6px 1px;text-align:center;border:0;background:#f0f6f7;border-radius:5px;font-size:12px}
+td input.score{width:48px}td input:focus,td select:focus{outline:2px solid #55a4b4}
+td.no{background:#f3f5f6}
+small.note{color:var(--muted)}
+.hidden{display:none!important}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{cursor:pointer}.danger{background:#fae8e7;color:#a32c25}
+@media(max-width:560px){main{padding:9px}header{padding:14px} .stats{gap:6px}.stat{padding:9px}.stat b{font-size:20px}.panel{padding:11px}}
+@media print{header,nav,.actions,.noprint{display:none!important}body{background:white}.panel{box-shadow:none;border:0;padding:0}.tablewrap{max-height:none;overflow:visible}table{min-width:0;font-size:8px}td input{width:25px;padding:0}}
+</style></head>
+<body>
+<header><h1>🏅 EPS Teacher</h1><small>Cahier journal · Suivi des élèves · Fonctionnement hors ligne</small></header>
+<main>
+<nav id="tabs"><button class="active" data-tab="home">Accueil</button><button data-tab="suivi">Suivi des élèves</button><button data-tab="journal">Cahier Journal</button><button data-tab="backup">Sauvegarde</button></nav>
+<section id="home" class="view">
+ <div class="panel"><h2>Tableau de bord</h2><div class="stats"><div class="stat"><b id="classCount">9</b><small>Classes</small></div><div class="stat"><b id="studentCount">351</b><small>Élèves</small></div><div class="stat"><b id="journalCount">0</b><small>Séances notées</small></div></div></div>
+ <div class="panel"><h2>Accès rapide</h2><div class="row"><div class="field"><label>CHOISIR UNE CLASSE</label><select id="homeClass"></select></div><button class="btn primary" id="goSuivi">Ouvrir le suivi</button></div><p class="note">Les données sont enregistrées sur cet appareil. Faites régulièrement une sauvegarde.</p></div>
+</section>
+<section id="suivi" class="view hidden">
+ <div class="panel">
+ <h2>Tableau de suivi des élèves</h2>
+ <div class="row">
+  <div class="field"><label>CLASSE</label><select id="classSelect"></select></div>
+  <div class="field"><label>CYCLE</label><input id="cycle" placeholder="Ex. Course de relais"></div>
+  <div class="field"><label>DU</label><input id="dateFrom" type="date"></div>
+  <div class="field"><label>AU</label><input id="dateTo" type="date"></div>
+ </div>
+ <p class="note">S1 à S10 : choisissez M (malade), A (absent), R (retard), ST (sans tenue) ou —. Pro / Cp / Cc / NF : évaluation.</p>
+ <div class="actions noprint"><button class="btn primary" id="addStudent">+ Ajouter un élève</button><button class="btn" id="printTrack">Imprimer / PDF</button><button class="btn" id="csvTrack">Exporter CSV</button></div>
+ </div>
+ <div class="tablewrap"><table id="tracking"><thead><tr><th rowspan="2">N°</th><th class="name" rowspan="2">NOM ET PRÉNOM</th><th colspan="10">SUIVI DES SÉANCES</th><th colspan="3">ÉVALUATION</th><th rowspan="2">NF</th></tr><tr id="subheads"></tr></thead><tbody></tbody></table></div>
+</section>
+<section id="journal" class="view hidden">
+ <div class="panel"><h2>Cahier Journal</h2><div class="row">
+ <div class="field"><label>DATE</label><input type="date" id="jDate"></div><div class="field"><label>CLASSE</label><select id="jClass"></select></div><div class="field"><label>DURÉE</label><input id="jDuration" placeholder="Ex. 1h"></div>
+ </div><div class="field"><label>CYCLE / ACTIVITÉ</label><input id="jCycle" placeholder="Ex. Handball"></div>
+ <div class="field"><label>OBJECTIF DE LA SÉANCE</label><textarea id="jObjective"></textarea></div>
+ <div class="field"><label>CONTENU / DÉROULEMENT</label><textarea id="jContent"></textarea></div>
+ <div class="field"><label>BILAN ET RÉGULATION</label><textarea id="jReview" placeholder="Difficultés constatées, interventions et régulations..."></textarea></div>
+ <div class="actions"><button class="btn primary" id="saveJournal">Enregistrer la séance</button></div></div>
+ <div class="panel"><h3>Historique des séances</h3><div id="journalList"></div></div>
+</section>
+<section id="backup" class="view hidden">
+ <div class="panel"><h2>Sauvegarde et restauration</h2><p>Exportez régulièrement vos données pour les conserver en cas de changement ou de perte du téléphone.</p>
+ <div class="actions"><button class="btn primary" id="exportBackup">Télécharger la sauvegarde</button><label class="btn">Importer une sauvegarde<input type="file" id="importBackup" accept=".json,application/json" hidden></label></div>
+ <p class="note">La sauvegarde contient les suivis, les séances du cahier journal et les modifications apportées aux élèves.</p></div>
+</section>
+</main>
+<script>
+window.STUDENTS={"2APIC-1": ["تكزيم ياسين", "صبري محمد أمين", "السامي ياسمين", "الخراز زهيرة", "عقيل أحمد", "الافغيري حسام", "قادري خديجة", "بهلوان سليمان", "ابويزي حمزة", "الادريسي إلياس", "خيرون رحاب", "احرير سعد", "الرياف ريان", "صافرو وليد", "امجيدو محمد", "ابو طالب مروان", "هوتى فاطمة الزهراء", "بوساكية مرية", "الغالمي محمد", "رائف زكرياء", "المروتي فرح", "وحمان كوثر", "الطلحي ياسمين", "مطوال عمر", "المعطاوي زهير", "عنتر الياس", "الشيبي يحيى", "العينوني معاد", "الساعي رضى", "معكر اسماعيل", "جاكم سلمى", "مساعد حسام", "وزنو خديجة", "بن بلال عبد العالي", "برداوي محمد", "استيني ريان", "ابونصر مراد", "المتوكل محمد علي", "العاطي الله خديجة"], "2APIC-2": ["بنسلام نهيلة", "خلوقي دنيا", "الرطيل بدر الدين", "لعريبي محمد رضى", "خوباش جهاد", "بن كروم اكرام", "الباهية تسنيم", "الادريسي علي", "العبدي منار", "الزعراوي ملاك", "سدير خديجة", "الوردي لقمان", "عطاري جواد", "المنصوري عبداللطيف", "الوردي ريان", "اكريران حنان", "خيصة المهدي", "ابو كمال يحيى", "عمار ياسين", "لخملي فاطمة الزهراء", "العلام رانيا", "الكراد شيماء", "الودود ملاك", "البوعزاوي ياسين", "الهداجي سلمى", "زوابرة سارة", "شاطر إيمان", "الطاهيري ايناس", "الفقير حنان", "الرامي مروة", "الصالحي فؤاد", "القدميري آدم", "ولد العالية أيوب", "بوهدي عبد الله", "زيان سهام", "البعزاوي فدوى", "مبروك فاطمة الزهراء", "بلمقدم هند", "الساعي خديجة"], "2APIC-3": ["بوعلالي أسامة", "العصامي سعد", "الشرعي اسامة", "الحافظي سليمان", "الموساوي عماد", "بوغدير امينة", "رائف يحيى", "الطاهري عبد الرحمان", "توميس كوثر", "أموليد حسام", "بن السالكة يوسف", "منصف نصر الدين", "ايت حمادي سعد", "مبروك أنس", "الفاريحي محسن", "كلالي حمزة", "الشراكي رزان", "خالدي اسماعيل", "العبوبي سليمان", "معروف هند", "رحاوي دعاء", "القادري يوسف", "امين خديجة", "امين رحاب", "الراجي ليلى", "اجويرة ايمان", "الزياني سعد", "عبسان سهام", "راشد ادم", "لحرش خديجة", "بن مبارك محمد", "معروف زكرياء", "الصابر إيناس", "المرزوقي محمد ريان", "المنتصر يحيى", "غناج لمياء", "ناشط ايمان", "مطوار سارة", "كركور رضا", "ذهاب وليد"], "2APIC-4": ["عمار جهان", "ربيعي المهدي", "التباعي جميلة", "عينون يوسف", "راصيد سهام", "براكش وفاء", "الزروالي صلاح الدين", "القدميري خديجة", "فتح الاسلام صفاء", "الراشدي آية", "بن عزوزة آدم", "السراخ الياس", "الطاهري يونس", "الدياني وجدان", "الناصري فهد", "فرتاح ياسمين", "اشنيتيفة خديجة", "بوحدو ريحانة", "الحمري إلياس", "التناني خديجة", "الصولاحي أسامة", "المحفوظي ياسين", "المتوكل مروان", "خيرات امنية", "الغرباوي أسماء", "حدوتي ملاك", "مسامح زياد", "النويشط منال", "زروال اكرام", "الكوهي حسام", "توكيل حازم", "جاري زكرياء", "جدراوي مراد", "ناذر يوسف", "ناذر محسن", "البضاوي يوسف", "اقسيس اية", "بحو هشام", "اشـتيـتو سيف الدين"], "2APIC-5": ["خوباش محمد إحسان", "سمير دعاء", "قطفي عبد النور", "الخلفوني نسمة", "لعوينة محمد", "نومير وصال", "المساوي خديجة", "العباسي أيوب", "المالكي آية", "الودان عبد الغفور", "معين جنات", "بنطاج دعاء", "الخضراوي يحي", "يسير فاطمة الزهراء", "بن مبارك احمد ياسين", "ارسلان سليمان", "معشوق شادية", "مياكي صفاء", "المكاوي نهيلة", "الجداري سلمى", "مبشور ريان", "عتيق لبنى", "رياض أمال", "عنور عبد المنعم", "الحمداوي فاطمة الزهراء", "الخالدي اكرام", "خوبارق مروة", "السلامي آدم", "دجمان سارة", "فنان لمياء", "فوزي ياسين", "الحافظي ياسر", "ديوان نعمة", "البوكلي منار", "ديراع ياسمين", "امعيز يونس", "امعيز انس", "اقنيبة اية", "عاطف محمد", "الطاهري مريم"], "2APIC-6": ["ايت غزوان إلهام", "سمرار معاد", "اقريد عبدالرحمان", "لعميري حسام", "زاويد سلمى", "الصافي ادم", "شنكور مريم", "لحرش شيماء", "وشان زينب", "محفوظ هناء", "السلامي ياسين", "بوكة اسامة", "حمامة يحيى", "جابالله عبد الصمد", "نصر الدين نورالدين", "عثمان منى", "الهيلاف ادام", "القرش يوسف", "شحيمة سعد", "كتاني علي", "خيرات اية", "المعروفي طه", "بوجنب عثمان", "عزيزي مراد", "مجدوب اشرف", "السلماوي صفية", "فهمي المهدي", "الغالمي محمد", "مازوز ياسين", "حمدون مريم", "الودود مراد", "الصولاحي يحيى", "بنضاوي ياسين", "الشرقي ايوب", "ايت الحمري سفيان", "الشقيرني رباب", "بلعيشي نهيلة"], "2APIC-7": ["القدمي زين الدين", "سعد حفصة", "لطفي لبنى", "العتابي مريم", "الشبلي شيماء", "عليني مهدي", "درني محمد أمين", "رمزان كمال", "خيرات ندير", "الجنيد صفاء", "القاسمي عثمان", "حمداوي صفاء", "الحيمر ايمان", "التيار إسراء", "نوري أسامة", "اكريران فاطمة الزهراء", "البركي يحيى", "زروق معاذ", "الشعراني ريان", "راحل كوثر", "الصالحي نور الهدى", "بن خالي مروة", "الراحلي اسية", "اجابري أنس", "الياكدي فاطمة الزهراء", "محروز نعمة", "خيرات ريحانة", "الضاوي جنات", "الدكايكي زينب", "مرزاق فاطمة الزهراء", "الغياتي امحمد رضى", "خيري عبد الرحمان", "بحو نورالهدى", "حشادي فاطمة الزهراء", "فتح الاسلام عزيزة", "زروق عماد", "العوادي عبد الصمد", "الكروطي محمد"], "2APIC-8": ["تمضال عزالدين", "المودن حنان", "الدباجي يونس", "أرسلان المهدي", "عراشي هاجر", "لخملي اية", "بن الكاري فاطمة الزهراء", "لشقر ندى", "الصولاحي مريم", "التادلي وجدان", "منصور أميرة", "مقروش سهيل", "ملان فاطمة الزهراء", "بوكة ملاك", "رضوان وليد", "السلمي مروة", "الغشوا سيف الاسلام", "لحمادي عماد", "بنشلح سعد", "رياض ابتسام", "التبات مروة", "الاسدي سلمى", "النيش أحمد", "الصالحي نور الدين", "الزوين عز الدين", "زيدان انس", "سيسوان وئام", "الدميغ سلوى", "محبوب نعمة", "الحجاجي اميمة", "الغفيري ياسمين", "ميلس مريم", "الصغير ايمان", "الوضاف ملاك", "عبد البار كوثر", "حجاجي حسام", "حلاوتي أيمن", "الزروالي سفيان", "خلوقي أسية", "العوينة اشرف"], "1APIC-14": ["وحمان عبدالله", "ابن الشيخ رضى", "حشادي سليمان", "العلالي ادم", "المخلوفي معاد", "التباع المهدي", "لمفضل محمد", "العامري آية", "الصحراوي سلمى", "لغفير الادريسي محمد أمين", "الكونتي سعد", "الهبيل آسية", "ايت حنون ريان", "فنكاش سليمان", "النقيشة إسراء", "البهالي عمر", "الكونتي هاجر", "أمين عمران", "حفوظي أمال", "شفيق هبة", "جبارة خديجة", "لبريني يونس", "بلقائد فاطمة الزهراء", "الحدراوي جنات", "براكش اسماعيل", "الغالمي حمزة", "النقيشة سعد", "ابوطيب رضوان", "السباعي كوثر", "بوطالب سعيدة", "غفور هبة", "الشجعي زينب", "ميلس سلمى", "بونوارة وجدان", "سماء يحيى", "ادريسي عمران", "بوحيفظ عمر", "أوزيد خديجة", "ادسعايد سعد"]};
+const CLASS_NAMES=Object.keys(window.STUDENTS||{});
+const $=id=>document.getElementById(id);
+const blank=()=>({cycle:"",from:"",to:"",rows:{},students:null});
+let db=JSON.parse(localStorage.getItem("eps_teacher_db")||"{}");
+function save(){localStorage.setItem("eps_teacher_db",JSON.stringify(db));refreshStats()}
+function clsData(c){if(!db[c])db[c]=blank();return db[c]}
+function students(c){return clsData(c).students||window.STUDENTS[c]||[]}
+function setupSelects(){["homeClass","classSelect","jClass"].forEach(id=>{let s=$(id);s.innerHTML=CLASS_NAMES.map(c=>`<option>${c}</option>`).join("")})}
+function refreshStats(){$("classCount").textContent=CLASS_NAMES.length;$("studentCount").textContent=CLASS_NAMES.reduce((n,c)=>n+students(c).length,0);$("journalCount").textContent=(db.journal||[]).length}
+function show(tab){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("hidden",v.id!==tab));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="suivi")renderTracking();if(tab==="journal")renderJournal()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+$("goSuivi").onclick=()=>{$("classSelect").value=$("homeClass").value;show("suivi")};
+function renderTracking(){let c=$("classSelect").value,d=clsData(c);$("cycle").value=d.cycle;$("dateFrom").value=d.from;$("dateTo").value=d.to;
+$("subheads").innerHTML=[...Array(10)].map((_,i)=>`<th>S${i+1}</th>`).join("")+"<th>Pro</th><th>Cp</th><th>Cc</th>";
+let body=$("tracking").querySelector("tbody");body.innerHTML="";
+students(c).forEach((name,i)=>{let r=d.rows[i]||{};let tr=document.createElement("tr");tr.innerHTML=`<td class="no">${i+1}</td><td class="name"></td>`;tr.children[1].textContent=name;
+for(let j=1;j<=10;j++){let v=r["s"+j]||"";tr.innerHTML+=`<td><select class="session-status" title="M : malade · A : absent · R : retard · ST : sans tenue" aria-label="S${j} ${name}" data-i="${i}" data-k="s${j}"><option value="" ${v===""?"selected":""}>—</option><option value="M" ${v==="M"?"selected":""}>M</option><option value="A" ${v==="A"?"selected":""}>A</option><option value="R" ${v==="R"?"selected":""}>R</option><option value="ST" ${v==="ST"?"selected":""}>ST</option></select></td>`}
+["pro","cp","cc","nf"].forEach(k=>tr.innerHTML+=`<td><input class="score" aria-label="${k} ${name}" data-i="${i}" data-k="${k}" value="${esc(r[k]||"")}"></td>`);
+body.appendChild(tr)});
+body.querySelectorAll("input,select").forEach(inp=>inp.onchange=()=>{let d=clsData(c);d.rows[inp.dataset.i]??={};d.rows[inp.dataset.i][inp.dataset.k]=inp.value;save()});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("classSelect").onchange=renderTracking;
+["cycle","dateFrom","dateTo"].forEach((id)=>$(id).onchange=()=>{let d=clsData($("classSelect").value);d.cycle=$("cycle").value;d.from=$("dateFrom").value;d.to=$("dateTo").value;save()});
+$("addStudent").onclick=()=>{let name=prompt("Nom et prénom de l'élève :");if(name&&name.trim()){let d=clsData($("classSelect").value);d.students=students($("classSelect").value).concat(name.trim());save();renderTracking()}};
+$("printTrack").onclick=()=>window.print();
+$("csvTrack").onclick=()=>{let c=$("classSelect").value,arr=[["N°","NOM ET PRENOM",...Array.from({length:10},(_,i)=>"S"+(i+1)),"Pro","Cp","Cc","NF"]];students(c).forEach((n,i)=>{let r=clsData(c).rows[i]||{};arr.push([i+1,n,...Array.from({length:10},(_,j)=>r["s"+(j+1)]||""),r.pro||"",r.cp||"",r.cc||"",r.nf||""])});download("\ufeff"+arr.map(row=>row.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(";")).join("\n"),c+"_suivi.csv","text/csv;charset=utf-8")};
+function download(data,name,type){let a=document.createElement("a"),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+$("jDate").value=new Date().toISOString().slice(0,10);
+$("saveJournal").onclick=()=>{let item={date:$("jDate").value,classe:$("jClass").value,duree:$("jDuration").value,cycle:$("jCycle").value,objectif:$("jObjective").value,contenu:$("jContent").value,bilan:$("jReview").value};if(!item.objectif&&!item.contenu){alert("Ajoutez au moins l'objectif ou le contenu.");return}db.journal??=[];db.journal.unshift(item);save();["jDuration","jCycle","jObjective","jContent","jReview"].forEach(id=>$(id).value="");renderJournal();alert("Séance enregistrée.")};
+function renderJournal(){let list=$("journalList");list.innerHTML="";(db.journal||[]).forEach((j,i)=>{let d=document.createElement("details");d.innerHTML=`<summary><b>${esc(j.date||"")}</b> · ${esc(j.classe||"")} · ${esc(j.cycle||"")}</summary><p><b>Objectif :</b> ${esc(j.objectif||"")}</p><p><b>Contenu :</b> ${esc(j.contenu||"")}</p><p><b>Bilan :</b> ${esc(j.bilan||"")}</p><button class="btn danger" data-del="${i}">Supprimer</button>`;list.appendChild(d)});list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{if(confirm("Supprimer cette séance ?")){db.journal.splice(+b.dataset.del,1);save();renderJournal()}})}
+$("exportBackup").onclick=()=>download(JSON.stringify({version:1,db,students:window.STUDENTS},null,2),"EPS_Teacher_sauvegarde.json","application/json");
+$("importBackup").onchange=async e=>{try{let o=JSON.parse(await e.target.files[0].text());if(!o.db||!o.students)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){db=o.db;window.STUDENTS=o.students;save();setupSelects();renderTracking();alert("Sauvegarde restaurée.")}}catch{alert("Fichier de sauvegarde invalide.")}};
+setupSelects();refreshStats();renderTracking();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>
