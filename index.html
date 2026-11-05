@@ -7,7 +7,7 @@
 <style>
 :root{--ink:#183344;--muted:#617987;--brand:#155e75;--pale:#e8f3f5;--line:#d7e1e5;--bg:#f4f7f8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Arabic",sans-serif}
-header{background:var(--brand);color:white;padding:17px 16px 14px;position:sticky;top:0;z-index:4;box-shadow:0 2px 8px #1233}
+header{background:var(--brand);color:white;padding:17px 16px 14px;position:sticky;top:0;z-index:4;box-shadow:0 2px 8px #1233}header .install{margin-top:10px;border:1px solid #ffffff88;border-radius:9px;padding:8px 12px;background:#ffffff18;color:#fff;font-weight:700}header .install:disabled{opacity:.8}
 header h1{font-size:21px;margin:0 0 5px}header small{opacity:.85}
 main{max-width:1100px;margin:auto;padding:14px}
 nav{display:flex;gap:8px;overflow:auto;padding:2px 0 12px}
@@ -24,8 +24,13 @@ textarea{min-height:78px;resize:vertical}
 table{border-collapse:collapse;width:100%;min-width:900px;font-size:12px;background:white}
 th,td{border:1px solid #b8c6cc;padding:5px;text-align:center;white-space:nowrap}
 th{background:#e6efdf;position:sticky;top:0;z-index:1}
-td.name{text-align:right;min-width:190px;font-weight:600;position:sticky;right:0;background:#fff;z-index:2}
-th.name{position:sticky;right:0;z-index:3}
+/* Colonnes identité fixes pendant le défilement horizontal */
+th:first-child,td.no{position:sticky;left:0;min-width:42px;width:42px;background:#f3f5f6;z-index:3}
+td.name{text-align:right;min-width:190px;width:190px;font-weight:600;position:sticky;left:42px;background:#fff;z-index:3}
+th.name{position:sticky;left:42px;min-width:190px;width:190px;z-index:4;background:#e6efdf}
+.tablewrap{direction:ltr}
+table{direction:ltr}
+td.name{direction:rtl}
 td input{width:42px;padding:6px 2px;text-align:center;border:0;background:#f8fafb;border-radius:4px}td select.session-status{width:48px;min-width:48px;padding:6px 1px;text-align:center;border:0;background:#f0f6f7;border-radius:5px;font-size:12px}
 td input.score{width:48px}td input:focus,td select:focus{outline:2px solid #55a4b4}
 td.no{background:#f3f5f6}
@@ -36,7 +41,7 @@ button{cursor:pointer}.danger{background:#fae8e7;color:#a32c25}
 @media print{header,nav,.actions,.noprint{display:none!important}body{background:white}.panel{box-shadow:none;border:0;padding:0}.tablewrap{max-height:none;overflow:visible}table{min-width:0;font-size:8px}td input{width:25px;padding:0}}
 </style></head>
 <body>
-<header><h1>🏅 EPS Teacher</h1><small>Cahier journal · Suivi des élèves · Fonctionnement hors ligne</small></header>
+<header><h1>🏅 EPS Teacher</h1><small>Cahier journal · Suivi des élèves · Fonctionnement hors ligne</small><br><button class="install" id="installApp" type="button">⬇ Installer l’application</button></header>
 <main>
 <nav id="tabs"><button class="active" data-tab="home">Accueil</button><button data-tab="suivi">Suivi des élèves</button><button data-tab="journal">Cahier Journal</button><button data-tab="backup">Sauvegarde</button></nav>
 <section id="home" class="view">
@@ -109,6 +114,15 @@ function renderJournal(){let list=$("journalList");list.innerHTML="";(db.journal
 $("exportBackup").onclick=()=>download(JSON.stringify({version:1,db,students:window.STUDENTS},null,2),"EPS_Teacher_sauvegarde.json","application/json");
 $("importBackup").onchange=async e=>{try{let o=JSON.parse(await e.target.files[0].text());if(!o.db||!o.students)throw 0;if(confirm("Remplacer les données actuelles par cette sauvegarde ?")){db=o.db;window.STUDENTS=o.students;save();setupSelects();renderTracking();alert("Sauvegarde restaurée.")}}catch{alert("Fichier de sauvegarde invalide.")}};
 setupSelects();refreshStats();renderTracking();
+let deferredInstallPrompt=null;
+const installButton=$("installApp");
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredInstallPrompt=event;installButton.disabled=false;installButton.textContent="⬇ Installer l’application"});
+window.addEventListener("appinstalled",()=>{installButton.textContent="✓ Application installée";installButton.disabled=true;deferredInstallPrompt=null});
+installButton.onclick=async()=>{
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;return}
+ if(window.matchMedia("(display-mode: standalone)").matches){alert("EPS Teacher est déjà installé sur cet appareil.");return}
+ alert("Pour installer EPS Teacher : ouvrez le menu ⋮ de Chrome puis choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ». Si l’option n’apparaît pas, actualisez la page après quelques instants.");
+};
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
 </body></html>
