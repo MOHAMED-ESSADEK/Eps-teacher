@@ -1,16 +1,1 @@
-{
-  "id": "./",
-  "name": "EPS Teacher",
-  "short_name": "EPS Teacher",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f4f7f8",
-  "theme_color": "#155e75",
-  "lang": "fr",
-  "description": "Cahier journal et suivi des élèves EPS hors ligne",
-  "icons": [
-    {"src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
-  ]
-}
+{"name":"PORTFOLIO EPS","short_name":"PORTFOLIO EPS","start_url":"./","scope":"./","display":"standalone","background_color":"#f3f7f8","theme_color":"#145b78","description":"Portfolio professionnel de l’enseignant d’EPS","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
